@@ -23,7 +23,7 @@ from PIL import Image
 class CocoDataset(Dataset):
     """Coco dataset."""
 
-    def __init__(self, root_dir, set_name='train2017', transform=None):
+    def __init__(self, root_dir, set_name='train2017', transform=None,part = 1):
         """
         Args:
             root_dir (string): COCO directory.
@@ -35,7 +35,7 @@ class CocoDataset(Dataset):
         self.transform = transform
 
         self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
-        self.image_ids = self.coco.getImgIds()
+        self.image_ids = self.coco.getImgIds() // part
 
         self.load_classes()
 

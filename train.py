@@ -21,7 +21,7 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 
 def main(args=None):
-    parser = argparse.ArgumentParser(description='Simple training script for training a RetinaNet network.')
+    parser = argparse.ArgumentParser(description='Simple training script for training a cnn3 network.')
 
     parser.add_argument('--dataset', help='Dataset type, must be one of csv or coco.')
     parser.add_argument('--coco_path', help='Path to COCO directory')
@@ -29,7 +29,7 @@ def main(args=None):
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
     parser.add_argument('--csv_val', help='Path to file containing validation annotations (optional, see readme)')
 
-    parser.add_argument('--depth', help='Resnet depth, must be one of 18, 34, 50, 101, 152', type=int, default=50)
+    parser.add_argument('--depth', help='Resnet depth, must be one of 18, 34, 50, 101, 152', type=int, default=101)
     parser.add_argument('--epochs', help='Number of epochs', type=int, default=100)
 
     parser = parser.parse_args(args)
@@ -42,9 +42,9 @@ def main(args=None):
             raise ValueError('Must provide --coco_path when training on COCO,')
 
         dataset_train = CocoDataset(parser.coco_path, set_name='train2017',
-                                    transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
+                                    transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]),10)
         dataset_val = CocoDataset(parser.coco_path, set_name='val2017',
-                                  transform=transforms.Compose([Normalizer(), Resizer()]))
+                                  transform=transforms.Compose([Normalizer(), Resizer()]),10)
 
     elif parser.dataset == 'csv':
 
@@ -73,49 +73,49 @@ def main(args=None):
     if dataset_val is not None:
         sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
         dataloader_val = DataLoader(dataset_val, num_workers=3, collate_fn=collater, batch_sampler=sampler_val)
-    '''
+    
     # Create the model
     if parser.depth == 18:
-        retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
+        cnn3 = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True)
     elif parser.depth == 34:
-        retinanet = model.resnet34(num_classes=dataset_train.num_classes(), pretrained=True)
+        cnn3 = model.resnet34(num_classes=dataset_train.num_classes(), pretrained=True)
     elif parser.depth == 50:
-        retinanet = model.resnet50(num_classes=dataset_train.num_classes(), pretrained=True)
+        cnn3 = model.resnet50(num_classes=dataset_train.num_classes(), pretrained=True)
     elif parser.depth == 101:
-        retinanet = model.resnet101(num_classes=dataset_train.num_classes(), pretrained=True)
+        cnn3 = model.resnet101(num_classes=dataset_train.num_classes(), pretrained=True)
     elif parser.depth == 152:
-        retinanet = model.resnet152(num_classes=dataset_train.num_classes(), pretrained=True)
+        cnn3 = model.resnet152(num_classes=dataset_train.num_classes(), pretrained=True)
     else:
         raise ValueError('Unsupported model depth, must be one of 18, 34, 50, 101, 152')
-
+    
     use_gpu = True
 
     if use_gpu:
         if torch.cuda.is_available():
-            retinanet = retinanet.cuda()
+            cnn3 = cnn3.cuda()
 
     if torch.cuda.is_available():
-        retinanet = torch.nn.DataParallel(retinanet).cuda()
+        cnn3 = torch.nn.DataParallel(cnn3).cuda()
     else:
-        retinanet = torch.nn.DataParallel(retinanet)
+        cnn3 = torch.nn.DataParallel(cnn3)
 
-    retinanet.training = True
+    cnn3.training = True
 
-    optimizer = optim.Adam(retinanet.parameters(), lr=1e-5)
+    optimizer = optim.Adam(cnn3.parameters(), lr=1e-5)
 
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
 
     loss_hist = collections.deque(maxlen=500)
-
-    retinanet.train()
-    retinanet.module.freeze_bn()
+    '''
+    cnn3.train()
+    cnn3.module.freeze_bn()
 
     print('Num training images: {}'.format(len(dataset_train)))
-
+    
     for epoch_num in range(parser.epochs):
 
-        retinanet.train()
-        retinanet.module.freeze_bn()
+        cnn3.train()
+        cnn3.module.freeze_bn()
 
         epoch_loss = []
 
@@ -124,9 +124,9 @@ def main(args=None):
                 optimizer.zero_grad()
 
                 if torch.cuda.is_available():
-                    classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                    classification_loss, regression_loss = cnn3([data['img'].cuda().float(), data['annot']])
                 else:
-                    classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
+                    classification_loss, regression_loss = cnn3([data['img'].float(), data['annot']])
                     
                 classification_loss = classification_loss.mean()
                 regression_loss = regression_loss.mean()
@@ -138,7 +138,7 @@ def main(args=None):
 
                 loss.backward()
 
-                torch.nn.utils.clip_grad_norm_(retinanet.parameters(), 0.1)
+                torch.nn.utils.clip_grad_norm_(cnn3.parameters(), 0.1)
 
                 optimizer.step()
 
@@ -160,21 +160,21 @@ def main(args=None):
 
             print('Evaluating dataset')
 
-            coco_eval.evaluate_coco(dataset_val, retinanet)
+            coco_eval.evaluate_coco(dataset_val, cnn3)
 
         elif parser.dataset == 'csv' and parser.csv_val is not None:
 
             print('Evaluating dataset')
 
-            mAP = csv_eval.evaluate(dataset_val, retinanet)
+            mAP = csv_eval.evaluate(dataset_val, cnn3)
 
         scheduler.step(np.mean(epoch_loss))
 
-        torch.save(retinanet.module, '{}_retinanet_{}.pt'.format(parser.dataset, epoch_num))
+        torch.save(cnn3.module, '{}_cnn3_{}.pt'.format(parser.dataset, epoch_num))
 
-    retinanet.eval()
+    cnn3.eval()
 
-    torch.save(retinanet, 'model_final.pt')
+    torch.save(cnn3, 'model_final.pt')
     '''
 
 if __name__ == '__main__':
