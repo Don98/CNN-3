@@ -35,7 +35,7 @@ class CocoDataset(Dataset):
         self.transform = transform
 
         self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
-        self.image_ids = self.coco.getImgIds() // part
+        self.image_ids = self.coco.getImgIds()[:len(self.coco.getImgIds()) // part]
 
         self.load_classes()
 
