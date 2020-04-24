@@ -49,23 +49,26 @@ def main(args=None):
                                   transform=transforms.Compose([Normalizer(), Resizer()]),part = 10)
     scale_list = {}
     import matplotlib.pyplot as plt
+    f = open("h_w_scale_hw.txt","w")
     for i in dataset_train:
-        # print(i["img"].size())
-        # print(i["annot"])
-        # img = transforms.ToPILImage()(i["img"].permute(2,0,1)).convert("RGB")
-        # print(img.size)
-        # img.show()
-        # exit()
-        if(i["scale"] in scale_list):
-            scale_list[i["scale"]] += 1
-        else:
-            scale_list[i["scale"]] = 0
-    X = sorted(scale_list.keys())
-    Y = []
-    for i in X:
-        Y.append(scale_list[i])
-    plt.bar(X,Y)
-    plt.show()
+    	f.write(str(i["img"].size()) +  " " + str(i["scale"]) + str(i["img"].size()[0] * i["img"].size()[1] * i["img"].size()[2] / 3) + "\n")
+	    # print(i.keys())
+	    # exit()
+    #     if(i["scale"] in scale_list):
+    #         scale_list[i["scale"]] += 1
+    #     else:
+    #         scale_list[i["scale"]] = 0
+    # X = sorted(scale_list.keys())
+    # Y = []
+    # result = {}
+    # for i in X:
+    #     Y.append(scale_list[i])
+    #     result[i] = Y[-1]
+    # f = open("scale_info.txt","w")
+    # f.write(str(result))
+    f.close()
+    # plt.bar(X,Y)
+    # plt.show()
 
 if __name__ == "__main__":
     main()
