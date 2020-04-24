@@ -17,6 +17,8 @@ from CNN3 import csv_eval
 
 assert torch.__version__.split('.')[0] == '1'
 
+from PIL import Image
+
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 
@@ -45,5 +47,25 @@ def main(args=None):
                                     transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]),part = 10)
         dataset_val = CocoDataset(parser.coco_path, set_name='val2017',
                                   transform=transforms.Compose([Normalizer(), Resizer()]),part = 10)
+    scale_list = {}
+    import matplotlib.pyplot as plt
     for i in dataset_train:
-        print(i)
+        # print(i["img"].size())
+        # print(i["annot"])
+        # img = transforms.ToPILImage()(i["img"].permute(2,0,1)).convert("RGB")
+        # print(img.size)
+        # img.show()
+        # exit()
+        if(i["scale"] in scale_list):
+            scale_list[i["scale"]] += 1
+        else:
+            scale_list[i["scale"]] = 0
+    X = sorted(scale_list.keys())
+    Y = []
+    for i in X:
+        Y.append(scale_list[i])
+    plt.bar(X,Y)
+    plt.show()
+
+if __name__ == "__main__":
+    main()
