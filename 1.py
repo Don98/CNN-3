@@ -2,8 +2,23 @@ import random
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from matplotlib import axes
- 
+import numpy as np
 def draw():
+    a = {(100,200):10}
+    a = [1,2,5]
+    try:
+        pos = a.index(3)
+    except ValueError as e:
+        pos = -1
+    x=np.array([[1,2,3,4,5]])
+    a = np.zeros((1,5))
+    b = np.zeros((2,1))
+    a[0][0] = 10
+    b[0][0] = 12
+    x = np.row_stack((x,a))
+    x = np.column_stack((x,b))
+    print(x)
+    exit()
     #定义热图的横纵坐标
     xLabel = ['A','B','C','D','E']
     yLabel = ['1','2','3','4','5']
