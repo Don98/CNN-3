@@ -1,13 +1,38 @@
-with open("h_w_scale_hw.txt","r") as f:
-    data = f.readlines()
-result = []
-f = open("h_w_scale_hw1.txt","w")
-for i in data:
-    # print(i)
-    # i = "torch.Size([640, 832, 3]) 1.2666666666666666532480.0"
-    a = i.find("[")
-    b = i.find("]")
-    num = i[a+1:b].replace(" ","").split(",")
-    num = len(str(int(num[0]) * int(num[1])))
-    f.write(i[:- num - 3] + " " + i[-num-3:] + "\n")
-f.close()
+import random
+from matplotlib import pyplot as plt
+from matplotlib import cm
+from matplotlib import axes
+ 
+def draw():
+    #定义热图的横纵坐标
+    xLabel = ['A','B','C','D','E']
+    yLabel = ['1','2','3','4','5']
+ 
+    #准备数据阶段，利用random生成二维数据（5*5）
+    data = []
+    for i in range(5):
+        temp = []
+        for j in range(5):
+            k = random.randint(0,100)
+            temp.append(k)
+        data.append(temp)
+    print(data)
+    #作图阶段
+    fig = plt.figure()
+    #定义画布为1*1个划分，并在第1个位置上进行作图
+    ax = fig.add_subplot(111)
+    #定义横纵坐标的刻度
+    ax.set_yticks(range(len(yLabel)))
+    ax.set_yticklabels(yLabel)
+    ax.set_xticks(range(len(xLabel)))
+    ax.set_xticklabels(xLabel)
+    #作图并选择热图的颜色填充风格，这里选择hot
+    im = ax.imshow(data, cmap=plt.cm.hot_r)
+    #增加右侧的颜色刻度条
+    plt.colorbar(im)
+    #增加标题
+    plt.title("This is a title")
+    #show
+    plt.show()
+ 
+d = draw()
