@@ -4,50 +4,85 @@ from matplotlib import cm
 from matplotlib import axes
 import numpy as np
 def draw():
-    a = {(100,200):10}
-    a = [1,2,5]
-    try:
-        pos = a.index(3)
-    except ValueError as e:
-        pos = -1
-    x=np.array([[1,2,3,4,5]])
-    a = np.zeros((1,5))
-    b = np.zeros((2,1))
-    a[0][0] = 10
-    b[0][0] = 12
-    x = np.row_stack((x,a))
-    x = np.column_stack((x,b))
-    print(x)
-    exit()
-    #定义热图的横纵坐标
-    xLabel = ['A','B','C','D','E']
-    yLabel = ['1','2','3','4','5']
- 
-    #准备数据阶段，利用random生成二维数据（5*5）
-    data = []
-    for i in range(5):
-        temp = []
-        for j in range(5):
-            k = random.randint(0,100)
-            temp.append(k)
-        data.append(temp)
-    print(data)
-    #作图阶段
-    fig = plt.figure()
-    #定义画布为1*1个划分，并在第1个位置上进行作图
-    ax = fig.add_subplot(111)
-    #定义横纵坐标的刻度
-    ax.set_yticks(range(len(yLabel)))
-    ax.set_yticklabels(yLabel)
-    ax.set_xticks(range(len(xLabel)))
-    ax.set_xticklabels(xLabel)
-    #作图并选择热图的颜色填充风格，这里选择hot
-    im = ax.imshow(data, cmap=plt.cm.hot_r)
-    #增加右侧的颜色刻度条
-    plt.colorbar(im)
-    #增加标题
-    plt.title("This is a title")
-    #show
+    f = open("h_w_scale_hw1.txt","r")
+    data = f.readlines()
+    data = [(int(i[12:i.index(",")]),int(i[i.index(",")+2:i.index(",",i.index(",")+1)])) for i in data[::2]]
+    f.close()
+    scale_list = {}
+    pos_list = np.array([[0]])
+    from matplotlib import pyplot as plt
+    from matplotlib import cm
+    from matplotlib import axes
+    X = [0]
+    Y = [0]
+    f = open("scale_h_w.txt","w")
+    for i in data:
+        part = (i[0],i[1])
+        if(part in scale_list):
+            scale_list[part] += 1
+            pos_list[pos_x][pos_y] += 1
+        else:
+            scale_list[part] = 1
+            if part[0] in X:
+                pos_x = X.index(part[0])
+            else:
+                pos_x = len(X)
+                for j in range(len(X)):
+                    if(X[j] < part[0]):
+                        pos_x = j
+                        break
+                X.insert(pos_x,part[0])
+                to_insert = np.zeros((1,len(Y)))
+                pos_list = np.insert(pos_list,pos_x,values=to_insert,axis=0)
+            if part[1] in Y:
+                pos_y = Y.index(part[1])
+            else:
+                pos_y = len(Y)
+                for j in range(len(Y)):
+                    if(Y[j] > part[1]):
+                        pos_y = j
+                        break
+                Y.insert(pos_y,part[1])
+                to_insert = np.zeros((1,len(X)))
+                pos_list = np.insert(pos_list,pos_y,values=to_insert,axis=1)
+            pos_list[pos_x][pos_y] += 1
+    X.pop(-1)
+    Y.pop(0)
+    pos_list = np.delete(pos_list,-1,axis=0)
+    pos_list = np.delete(pos_list,0,axis=1)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111)
+    # ax.set_yticks(range(len(Y)))
+    # ax.set_yticklabels(Y)
+    # ax.set_xticks(range(len(X)))
+    # ax.set_xticklabels(X)
+    
+    # im = ax.imshow(pos_list, cmap=plt.cm.hot_r)
+    # plt.colorbar(im)
+    # plt.title("This is the scale of coco")
+    # plt.show()
+    import pandas as pd
+    import seaborn as sns
+    print(X)
+    print(Y)
+    df = pd.DataFrame(pos_list,index = X ,columns = Y)
+    print(df.head())
+    
+    
+    sns.set()
+    ax = sns.heatmap(df,annot=True, fmt='d', linewidths=.5, cmap='YlGnBu')
+    # ax = sns.heatmap(df,annot=True, fmt='d', linewidths=.5, cmap='RdBu')
+    plt.title("This is the scale of coco train")
     plt.show()
+    # df.to_csv("pan.csv")
+    
+    # print(len(X),len(Y))
+    # print(pos_list.shape)
+    # exit()
+    
+    # X.insert(0,0)
+    # pos_list = np.insert(pos_list,0,values = Y,axis=0)
+    # pos_list = np.insert(pos_list,0,values = X,axis=1)
+    # np.savetxt("temp.csv", pos_list, delimiter=",")
  
 d = draw()
