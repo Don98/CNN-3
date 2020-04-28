@@ -3,10 +3,15 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from matplotlib import axes
 import numpy as np
+import pandas as pd
+import seaborn as sns
+    
 def draw():
-    f = open("h_w_scale_hw1.txt","r")
+    f = open("file/KITTI/KITTI_testing.txt","r")
     data = f.readlines()
-    data = [(int(i[12:i.index(",")]),int(i[i.index(",")+2:i.index(",",i.index(",")+1)])) for i in data[::2]]
+    # data = [(int(i[12:i.index(",")]),int(i[i.index(",")+2:i.index(",",i.index(",")+1)])) for i in data[::2]]
+    data = [(int(i[1:i.index(",")]),int(i[i.index(",") + 2:-2])) for i in data[::2]]
+    # print(data)
     f.close()
     scale_list = {}
     pos_list = np.array([[0]])
@@ -15,7 +20,6 @@ def draw():
     from matplotlib import axes
     X = [0]
     Y = [0]
-    f = open("scale_h_w.txt","w")
     for i in data:
         part = (i[0],i[1])
         if(part in scale_list):
@@ -46,23 +50,47 @@ def draw():
                 to_insert = np.zeros((1,len(X)))
                 pos_list = np.insert(pos_list,pos_y,values=to_insert,axis=1)
             pos_list[pos_x][pos_y] += 1
+
     X.pop(-1)
     Y.pop(0)
     pos_list = np.delete(pos_list,-1,axis=0)
     pos_list = np.delete(pos_list,0,axis=1)
-    # fig = plt.figure()
-    # ax = fig.add_subplot(111)
-    # ax.set_yticks(range(len(Y)))
-    # ax.set_yticklabels(Y)
-    # ax.set_xticks(range(len(X)))
-    # ax.set_xticklabels(X)
     
-    # im = ax.imshow(pos_list, cmap=plt.cm.hot_r)
-    # plt.colorbar(im)
-    # plt.title("This is the scale of coco")
-    # plt.show()
-    import pandas as pd
-    import seaborn as sns
+    bin_num = 25
+    pos = 0
+    num = 0
+    pop_pos = []
+    list_num = 0
+    for i in range(1,len(X)):
+        if(abs(X[i] - X[pos]) <= bin_num):
+            pos_list[pos-list_num] += pos_list[i - num]
+            pos_list = np.delete(pos_list,i - num,axis = 0)
+            pop_pos.append(i-num)
+            num += 1
+            # print(X[pos])
+        else:
+            X[pos] = X[pos] - bin_num // 2
+            pos = i
+            list_num = num
+    for i in pop_pos:
+        X.pop(i)
+    pos = 0
+    num = 0
+    pop_pos = []
+    list_num = 0
+    for i in range(1,len(Y)):
+        if(abs(Y[i] - Y[pos]) <= bin_num):
+            pos_list[:,pos-list_num] += pos_list[:,i - num]
+            pos_list = np.delete(pos_list,i - num,axis = 1)
+            pop_pos.append(i-num)
+            num += 1
+        else:
+            Y[pos] = Y[pos] + bin_num // 2
+            pos = i
+            list_num = num
+    for i in pop_pos:
+        Y.pop(i)
+    
     print(X)
     print(Y)
     df = pd.DataFrame(pos_list,index = X ,columns = Y)
@@ -70,19 +98,29 @@ def draw():
     
     
     sns.set()
-    ax = sns.heatmap(df,annot=True, fmt='d', linewidths=.5, cmap='YlGnBu')
-    # ax = sns.heatmap(df,annot=True, fmt='d', linewidths=.5, cmap='RdBu')
-    plt.title("This is the scale of coco train")
+    ax = sns.heatmap(df,annot=False, fmt='d', linewidths=.5, cmap='YlGnBu')
+    plt.title("This is the scale of KITTI test bins=" + str(bin_num))
     plt.show()
-    # df.to_csv("pan.csv")
+    df.to_csv("file/KITTI/KITTI_test_" + str(bin_num) + ".csv")
     
-    # print(len(X),len(Y))
-    # print(pos_list.shape)
-    # exit()
+def draw_mult():
+    df0 = pd.read_csv("file/VOC2007/VOC2007_50.csv",index_col=0)
+    df1 = pd.read_csv("file/VOC2007/VOC2007_25.csv",index_col=0)
+    df2 = pd.read_csv("file/KITTI/KITTI_50.csv",index_col=0)
+    df3 = pd.read_csv("file/KITTI/KITTI_25.csv",index_col=0)
+    f, ((ax1,ax2),(ax3,ax4)) = plt.subplots(figsize = (20, 15),nrows=2,ncols=2)
+    sns.set()
+    ax1.set_title("VOC2007_50")
+    sns.heatmap(df0,annot=False, ax = ax1,fmt='d', linewidths=.5, cmap='YlGnBu')
+    ax2.set_title("KITTI_50")
+    sns.heatmap(df2,annot=False, ax = ax2,fmt='d', linewidths=.5, cmap='YlGnBu')
+    ax3.set_title("VOC2007_25")
+    sns.heatmap(df1,annot=False, ax = ax3,fmt='d', linewidths=.5, cmap='YlGnBu')
+    ax4.set_title("KITTI_25")
+    sns.heatmap(df3,annot=False, ax = ax4,fmt='d', linewidths=.5, cmap='YlGnBu')
+    plt.show()
     
-    # X.insert(0,0)
-    # pos_list = np.insert(pos_list,0,values = Y,axis=0)
-    # pos_list = np.insert(pos_list,0,values = X,axis=1)
-    # np.savetxt("temp.csv", pos_list, delimiter=",")
- 
-d = draw()
+    
+if __name__ == "__main__":
+    d = draw()
+    # draw_mult()
