@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
     
 def draw():
-    f = open("file/KITTI/KITTI_testing.txt","r")
+    f = open("file/COCO/scale_h_w_or.txt","r")
     data = f.readlines()
     # data = [(int(i[12:i.index(",")]),int(i[i.index(",")+2:i.index(",",i.index(",")+1)])) for i in data[::2]]
     data = [(int(i[1:i.index(",")]),int(i[i.index(",") + 2:-2])) for i in data[::2]]
