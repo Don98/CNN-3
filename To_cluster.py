@@ -4,10 +4,9 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-def cluster_model(x, model):
-    if (model == "dbscan"):
-        dbscan = DBSCAN(eps=1, min_samples=5, metric='euclidean').fit(x)
+def cluster_model(x,model):
+    if(model == "dbscan"):
+        dbscan = DBSCAN(eps = 50, min_samples = 5,metric = 'euclidean').fit(x)
         dbscan.fit(x)
         return dbscan.labels_
     if (model == "kmeans"):
@@ -22,7 +21,7 @@ if __name__ == "__main__":
     # print(data)
     f.close()
     x = np.array(data)
-
+    
     y = cluster_model(x, "kmeans")
     # y = cluster_model(x,"dbscan")
     y = np.array(y)
