@@ -7,10 +7,10 @@ import pandas as pd
 import seaborn as sns
     
 def draw():
-    f = open("file/COCO/scale_h_w_or.txt","r")
+    f = open("file/VOC2012/VOC2012.txt","r")
     data = f.readlines()
     # data = [(int(i[12:i.index(",")]),int(i[i.index(",")+2:i.index(",",i.index(",")+1)])) for i in data[::2]]
-    data = [(int(i[1:i.index(",")]),int(i[i.index(",") + 2:-2])) for i in data[::2]]
+    data = [(int(i[1:i.index(",")]),int(i[i.index(",") + 2:-2])) for i in data]
     # print(data)
     f.close()
     scale_list = {}
@@ -56,7 +56,7 @@ def draw():
     pos_list = np.delete(pos_list,-1,axis=0)
     pos_list = np.delete(pos_list,0,axis=1)
     
-    bin_num = 50
+    bin_num = 25
     pos = 0
     num = 0
     pop_pos = []
@@ -96,32 +96,38 @@ def draw():
     df = pd.DataFrame(pos_list,index = X ,columns = Y)
     print(df.head())
     
-    sns.clustermap(df,annot=False, fmt='d', linewidths=.5, cmap='YlGnBu')
-    plt.show()
-    # sns.set()
-    # ax = sns.heatmap(df,annot=False, fmt='d', linewidths=.5, cmap='YlGnBu')
-    # plt.title("This is the scale of KITTI test bins=" + str(bin_num))
+    # sns.clustermap(df,annot=False, fmt='d', linewidths=.5, cmap='YlGnBu')
     # plt.show()
-    # df.to_csv("file/KITTI/KITTI_test_" + str(bin_num) + ".csv")
+    sns.set()
+    ax = sns.heatmap(df,annot=False, fmt='d', linewidths=.5, cmap='YlGnBu')
+    plt.title("This is the scale of voc2012 bins=" + str(bin_num))
+    plt.show()
+    df.to_csv("file/VOC2012/voc2012_" + str(bin_num) + ".csv")
     
 def draw_mult():
-    df0 = pd.read_csv("file/VOC2007/VOC2007_50.csv",index_col=0)
-    df1 = pd.read_csv("file/VOC2007/VOC2007_25.csv",index_col=0)
-    df2 = pd.read_csv("file/KITTI/KITTI_50.csv",index_col=0)
-    df3 = pd.read_csv("file/KITTI/KITTI_25.csv",index_col=0)
-    f, ((ax1,ax2),(ax3,ax4)) = plt.subplots(figsize = (20, 15),nrows=2,ncols=2)
+    df0 = pd.read_csv("file/COCO/coco_or_train_50.csv",index_col=0)
+    df1 = pd.read_csv("file/COCO/coco_or_train_25.csv",index_col=0)
+    df2 = pd.read_csv("file/COCO/coco_or_test_50.csv",index_col=0)
+    df3 = pd.read_csv("file/COCO/coco_or_test_25.csv",index_col=0)
+    df4 = pd.read_csv("file/COCO/coco_or_val_50.csv",index_col=0)
+    df5 = pd.read_csv("file/COCO/coco_or_val_25.csv",index_col=0)
+    f, ((ax1,ax2,ax3),(ax4,ax5,ax6)) = plt.subplots(figsize = (20, 15),nrows=2,ncols=3)
     sns.set()
-    ax1.set_title("VOC2007_50")
+    ax1.set_title("coco_or_train_50")
     sns.heatmap(df0,annot=False, ax = ax1,fmt='d', linewidths=.5, cmap='YlGnBu')
-    ax2.set_title("KITTI_50")
+    ax2.set_title("coco_or_test_50")
     sns.heatmap(df2,annot=False, ax = ax2,fmt='d', linewidths=.5, cmap='YlGnBu')
-    ax3.set_title("VOC2007_25")
+    ax3.set_title("coco_or_val_50")
     sns.heatmap(df1,annot=False, ax = ax3,fmt='d', linewidths=.5, cmap='YlGnBu')
-    ax4.set_title("KITTI_25")
+    ax4.set_title("coco_or_train_25")
     sns.heatmap(df3,annot=False, ax = ax4,fmt='d', linewidths=.5, cmap='YlGnBu')
+    ax5.set_title("coco_or_test_25")
+    sns.heatmap(df3,annot=False, ax = ax5,fmt='d', linewidths=.5, cmap='YlGnBu')
+    ax6.set_title("coco_or_val_25")
+    sns.heatmap(df3,annot=False, ax = ax6,fmt='d', linewidths=.5, cmap='YlGnBu')
     plt.show()
     
     
 if __name__ == "__main__":
-    d = draw()
-    # draw_mult()
+    # d = draw()
+    draw_mult()
