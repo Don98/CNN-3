@@ -355,7 +355,6 @@ class Resizer(object):
         rows, cols, cns = image.shape
 
         smallest_side = min(rows, cols)
-        scale = min_side / smallest_side
 
         new_rows = 0;new_cols = 0
         if smallest_side == rows:
