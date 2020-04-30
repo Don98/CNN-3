@@ -367,8 +367,8 @@ class Resizer(object):
         scale_y = new_cols / cols
         
         # resize the image with the computed scale
-        image = skimage.transform.resize(image, (int(new_rows), int(new_cols)))
-        rows, cols, cns = image.shape
+        new_image = skimage.transform.resize(image, (int(new_rows), int(new_cols)))
+        rows, cols, cns = new_image.shape
 
         # annots[:, :4] *= scale
         annots[:,0] *= scale_x
