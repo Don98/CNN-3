@@ -344,23 +344,14 @@ def collater(data):
 class Resizer(object):
     """Convert ndarrays in sample to Tensors."""
 
-    def __call__(self, sample, min_side=608, max_side=1024):
-        center = [460,640]
+    def __call__(self, sample, center):
+        # center = [460,640]
         image, annots = sample['img'], sample['annot']
 
         rows, cols, cns = image.shape
 
         smallest_side = min(rows, cols)
-
-        # rescale the image so the smallest side is min_side
         scale = min_side / smallest_side
-
-        # check if the largest side is now greater than max_side, which can happen
-        # when images have a large aspect ratio
-        largest_side = max(rows, cols)
-
-        if largest_side * scale > max_side:
-            scale = max_side / largest_side
 
         new_rows = 0;new_cols = 0
         if smallest_side == rows:
@@ -382,7 +373,7 @@ class Resizer(object):
         annots[:,1] * = scale_x
         annots[:,3] * = scale_y
 
-        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
+        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': (scale_x + scale_y) / 2}
 
 
 class Augmenter(object):
