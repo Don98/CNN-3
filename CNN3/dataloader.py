@@ -368,10 +368,10 @@ class Resizer(object):
         rows, cols, cns = image.shape
 
         # annots[:, :4] *= scale
-        annots[:,0] * = scale_x
-        annots[:,2] * = scale_y
-        annots[:,1] * = scale_x
-        annots[:,3] * = scale_y
+        annots[:,0] *= scale_x
+        annots[:,2] *= scale_y
+        annots[:,1] *= scale_x
+        annots[:,3] *= scale_y
 
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': (scale_x + scale_y) / 2}
 
