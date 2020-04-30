@@ -18,12 +18,14 @@ if __name__ == "__main__":
     f = open("file/COCO/scale_h_w_or.txt", "r")
     data = f.readlines()
     data = [[int(i[1:i.index(",")]), int(i[i.index(",") + 2:-2])] for i in data]
+    data = [i if i[0] < i[1] else [i[1],i[0]]for i in data]#对折
     # print(data)
     f.close()
     x = np.array(data)
     
     y = cluster_model(x, "kmeans",2)
     center = y[1]
+    print(center)
     y = y[0]
     # y = cluster_model(x,"dbscan",10)[0]
     y = np.array(y)

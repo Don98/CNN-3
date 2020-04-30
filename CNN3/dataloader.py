@@ -33,6 +33,7 @@ class CocoDataset(Dataset):
         self.root_dir = root_dir
         self.set_name = set_name
         self.transform = transform
+        self.center = [459.05176293,638.68031284]
 
         self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
         
@@ -344,6 +345,7 @@ class Resizer(object):
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample, min_side=608, max_side=1024):
+        center = [460,640]
         image, annots = sample['img'], sample['annot']
 
         rows, cols, cns = image.shape
@@ -360,17 +362,25 @@ class Resizer(object):
         if largest_side * scale > max_side:
             scale = max_side / largest_side
 
+        new_rows = 0;new_cols = 0
+        if smallest_side == rows:
+            new_rows = center[0]
+            new_cols = center[1]
+        else:
+            new_rows = center[1]
+            new_cols = center[0]
+        scale_x = new_rows / rows
+        scale_y = new_cols / cols
+        
         # resize the image with the computed scale
-        image = skimage.transform.resize(image, (int(round(rows*scale)), int(round((cols*scale)))))
+        image = skimage.transform.resize(image, (int(new_rows), int(new_cols)))
         rows, cols, cns = image.shape
 
-        pad_w = 32 - rows%32
-        pad_h = 32 - cols%32
-
-        new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
-        new_image[:rows, :cols, :] = image.astype(np.float32)
-
-        annots[:, :4] *= scale
+        # annots[:, :4] *= scale
+        annots[:,0] * = scale_x
+        annots[:,2] * = scale_y
+        annots[:,1] * = scale_x
+        annots[:,3] * = scale_y
 
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 

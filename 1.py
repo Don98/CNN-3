@@ -1,18 +1,96 @@
 import numpy as np
+from pycocotools.coco import COCO
+import skimage.transform
 
-def get_center(path):
-    f = open(path,"r")
-    data = f.readlines()
-    data = [[int(i[1:i.index(",")]), int(i[i.index(",") + 2:-2])] for i in data]
-    f.close()
-    return data
+def coco_label_to_label(coco_label):
+    return coco_labels_inverse[coco_label]
 
-if __name__ == "__main__":
-    f = open("file/COCO/scale_h_w_or.txt","r")
-    center_path = "center_kmeans.txt"
-    data = f.readlines()
-    f.close()
-    data = [[int(i[1:i.index(",")]), int(i[i.index(",") + 2:-2])] for i in data[::2]]
-    x = np.array(data)
-    ccenter = get_center("center_kmeans.txt")
-    print(data)
+coco = COCO("./instances_val2017.json")
+# print(coco.getCatIds())
+categories = coco.loadCats(coco.getCatIds())
+image_ids = coco.getImgIds()
+
+# print(image_ids)
+categories.sort(key=lambda x: x['id'])
+classes             = {}
+coco_labels         = {}
+coco_labels_inverse = {}
+for c in categories:
+    coco_labels[len(classes)] = c['id']
+    coco_labels_inverse[c['id']] = len(classes)
+    classes[c['name']] = len(classes)
+# print(coco_labels)
+# print(coco_labels_inverse)
+# print(classes)
+
+labels = {}
+for key, value in classes.items():
+    labels[value] = key
+# print(labels)
+
+annotations_ids = coco.getAnnIds(imgIds=image_ids[0], iscrowd=False)
+
+annotations     = np.zeros((0, 5))
+
+
+# parse annotations
+coco_annotations = coco.loadAnns(annotations_ids)
+# print(coco_annotations[0])
+
+for idx, a in enumerate(coco_annotations):
+
+    # some annotations have basically no width / height, skip them
+    if a['bbox'][2] < 1 or a['bbox'][3] < 1:
+        continue
+
+    annotation        = np.zeros((1, 5))
+    annotation[0, :4] = a['bbox']
+    annotation[0, 4]  = coco_label_to_label(a['category_id'])
+    annotations       = np.append(annotations, annotation, axis=0)
+
+# transform from [x, y, w, h] to [x1, y1, x2, y2]
+annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
+annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
+# print(annotations)
+
+image_info = coco.loadImgs(image_ids[0])[0]
+# print(image_info)
+
+def resizer(min_side=608, max_side=1024):
+    center = [460,640]
+    # image, annots = sample['img'], sample['annot']
+
+    annot = annotations
+    rows, cols, cns = 1000,2000,3
+
+    smallest_side = min(rows, cols)
+    print(smallest_side)
+    # rescale the image so the smallest side is min_side
+    scale = min_side / smallest_side
+
+    # check if the largest side is now greater than max_side, which can happen
+    # when images have a large aspect ratio
+    largest_side = max(rows, cols)
+
+    if largest_side * scale > max_side:
+        scale = max_side / largest_side
+
+    # resize the image with the computed scale
+    image = skimage.transform.resize(image, (int(round(rows*scale)), int(round((cols*scale)))))
+    rows, cols, cns = image.shape
+
+    pad_w = 32 - rows%32
+    pad_h = 32 - cols%32
+
+    new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
+    new_image[:rows, :cols, :] = image.astype(np.float32)
+
+    annots[:, :4] *= scale
+
+    return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
+
+
+# img = load_image(0)
+annot = annotations
+print(annot[:,:4])
+# resizer()
