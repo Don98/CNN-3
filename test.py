@@ -49,8 +49,18 @@ def main(args=None):
                                   transform=transforms.Compose([Normalizer(), Resizer([460,640])]),part = 1)
                                   # transform=transforms.Compose([Normalizer(), Resizer([350,500])]),part = 1)
     print(len(dataset_train))
+    num = 0
     for i in dataset_train:
-        # print(i["img"])
+        print(i["img"].size())
+        if num == 100:
+            break
+        num += 1
+        pass
+    for i in dataset_val:
+        print(i["img"].size())
+        if num == 200:
+            break
+        num += 1
         pass
 
 if __name__ == "__main__":
