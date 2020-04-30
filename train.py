@@ -42,9 +42,9 @@ def main(args=None):
             raise ValueError('Must provide --coco_path when training on COCO,')
 
         dataset_train = CocoDataset(parser.coco_path, set_name='train2017',
-                                    transform=transforms.Compose([Normalizer(), Augmenter(), Resizer([460,640])]),part = 1)
+                                    transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]),part = 1)
         dataset_val = CocoDataset(parser.coco_path, set_name='val2017',
-                                  transform=transforms.Compose([Normalizer(), Resizer([460,640])]),part = 1)
+                                  transform=transforms.Compose([Normalizer(), Resizer()]),part = 1)
                                   # transform=transforms.Compose([Normalizer(), Resizer([350,500])]),part = 1)
 
     elif parser.dataset == 'csv':
