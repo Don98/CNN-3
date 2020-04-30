@@ -348,7 +348,6 @@ class Resizer(object):
 
     def __call__(self, sample):
         center = self.center
-        self.times += 1
         image, annots = sample['img'], sample['annot']
 
         rows, cols, cns = image.shape
