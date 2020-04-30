@@ -107,7 +107,7 @@ def main(args=None):
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
 
     loss_hist = collections.deque(maxlen=500)
-    '''
+    
     cnn3.train()
     cnn3.module.freeze_bn()
 
@@ -171,12 +171,12 @@ def main(args=None):
 
         scheduler.step(np.mean(epoch_loss))
 
-        torch.save(cnn3.module, '{}_cnn3_{}.pt'.format(parser.dataset, epoch_num))
+        torch.save(cnn3.module, '{}_cnn3_460*640_{}.pt'.format(parser.dataset, epoch_num))
 
     cnn3.eval()
 
-    torch.save(cnn3, 'model_final.pt')
-    '''
+    torch.save(cnn3, 'high_model_final.pt')
+    
 
 if __name__ == '__main__':
     main()
