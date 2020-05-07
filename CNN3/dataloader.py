@@ -148,12 +148,15 @@ class VocDataset(Dataset):
         file = open('classes.txt', 'r') 
         js = file.read()
         a = js[1:-2].split(", ")
-        dic = {}
+        result = []
         for i in a:
             i = i.split(": ")
-            dic[int(i[0])] = i[1][1:-1]
+            dic = {}
+            dic["id"] = int(i[0])
+            dic["name"] = i[1][1:-1]
+            result.append(dic)
         file.close()
-        return dic
+        return result
         
     def load_classes(self):
         # load class names (name -> label)

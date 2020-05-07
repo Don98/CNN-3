@@ -18,7 +18,7 @@ classes             = {}
 coco_labels         = {}
 coco_labels_inverse = {}
 for c in categories:
-    # print(c)
+    print(c)
     coco_labels[len(classes)] = c['id']
     coco_labels_inverse[c['id']] = len(classes)
     classes[c['name']] = len(classes)
