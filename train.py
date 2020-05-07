@@ -64,7 +64,16 @@ def main(args=None):
         else:
             dataset_val = CSVDataset(train_file=parser.csv_val, class_list=parser.csv_classes,
                                      transform=transforms.Compose([Normalizer(), Resizer()]))
+    elif parser.dataset == 'Voc':
 
+        if parser.coco_path is None:
+            raise ValueError('Must provide --coco_path when training on COCO,')
+
+        dataset_train = VocDataset(parser.coco_path, set_name='2007',
+                                    transform=transforms.Compose([Normalizer(), Augmenter(), Resizer([460,640])]))
+        dataset_val = VocDataset(parser.coco_path, set_name='2007',
+                                  transform=transforms.Compose([Normalizer(), Resizer([460,640])]))
+                                  # transform=transforms.Compose([Normalizer(), Resizer([350,500])]),part = 1)
     else:
         raise ValueError('Dataset type not understood (must be csv or coco), exiting.')
 
