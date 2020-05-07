@@ -148,7 +148,7 @@ class VocDataset(Dataset):
     def loadCats(self):
         file = open(self.clas_path + 'classes.txt', 'r') 
         js = file.read()
-        a = js[1:-2].split(", ")
+        a = js[1:-1].split(", ")
         result = []
         for i in a:
             i = i.split(": ")

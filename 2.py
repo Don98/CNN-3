@@ -1,13 +1,15 @@
-def loadCats(self):
+def loadCats():
     file = open('classes.txt', 'r') 
     js = file.read()
-    a = js[1:-2].split(", ")
+    a = js[1:-1].split(", ")
     result = []
     for i in a:
         i = i.split(": ")
         dic = {}
         dic["id"] = int(i[0])
         dic["name"] = i[1][1:-1]
+        print(i)
+        print(int(i[0]),i[1][1:-1])
         result.append(dic)
     file.close()
     return result
@@ -29,3 +31,5 @@ def load_classes(self):
     self.labels = {}
     for key, value in self.classes.items():
         self.labels[value] = key
+        
+loadCats()
