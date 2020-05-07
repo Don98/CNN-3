@@ -138,6 +138,7 @@ class VocDataset(Dataset):
         self.image_ids = self.getImgIds()
 
         self.load_classes()
+        print(self.classes)
     def getImgIds(self):
         import os
         files = os.listdir(self.pic_path)
@@ -247,7 +248,7 @@ class VocDataset(Dataset):
         return float(image[1]) / float(image[2])
 
     def num_classes(self):
-        return 80
+        return 20
 
 
 class CSVDataset(Dataset):
