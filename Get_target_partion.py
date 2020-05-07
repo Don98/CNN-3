@@ -20,10 +20,13 @@ def get_target_partion(data,center,target1,target2):
             y[i] += 1
         if(get_dis(data[i],center[1]) <= distance):
             y[i] += 2
-    # print(y.count(0) / len(data))
-    # print(y.count(3) / len(data))
-    # print(y.count(3) / (y.count(1) + y.count(3)))
-    # print(y.count(3) / (y.count(2) + y.count(3)))
+    print("未分类占据比例：",y.count(0) / len(data))
+    print("两者皆是分为占全部比例：",y.count(3) / len(data))
+    print("两者皆是占第一类比例：",y.count(3) / (y.count(1) + y.count(3)))
+    print("两者皆是占第二类比例：",y.count(3) / (y.count(2) + y.count(3)))
+    print("第一类占全部比例比例：",(y.count(3) + y.count(1))/ len(data))
+    print("第二类占全部比例比例：",(y.count(3) + y.count(2))/ len(data))
+    print("第一二类占比比例：",(y.count(3) + y.count(1))/ (y.count(3) + y.count(2)))
     # print(y.count(0))
     # print(y.count(1)+y.count(3))
     # print(y.count(2)+y.count(3))

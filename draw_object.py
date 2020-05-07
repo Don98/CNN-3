@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 from To_cluster import cluster_model
 from math import *
 
-def draw_object_map():
-    f = open("file/COCO/train_instance.txt","r")
-    data = f.readlines()
-    data = [float(i[1:-2].split(", ")[-2]) * float(i[1:-2].split(", ")[-1]) for i in data]
+def draw_object_map(data = None):
+    if data == None:
+        f = open("file/COCO/train_instance.txt","r")
+        data = f.readlines()
+        data = [float(i[1:-2].split(", ")[-2]) * float(i[1:-2].split(", ")[-1]) for i in data]
     # print(data)
-    # f.close()
+        f.close()
     max_data = max(data)
     min_data = min(data)
 
@@ -34,7 +35,15 @@ def draw_object_map():
     print(bins)
     print(bins_num)
     plt.bar(bins,bins_num)
+    for a,b in zip(bins,bins_num):
+        plt.text(a, b+0.05, str(b / len(data) * 100)[:4] + "%", ha='center', va= 'bottom',fontsize=7)
     plt.show()
+
+# def two_class():
+    # f = open("file/COCO/train_instance.txt","r")
+    # data = f.readlines()
+    # data = [float(i[1:-2].split(", ")[-2]) * float(i[1:-2].split(", ")[-1])
 
 if __name__ == "__main__":
     draw_object_map()
+    two_class()
