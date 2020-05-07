@@ -125,14 +125,16 @@ class CocoDataset(Dataset):
 class VocDataset(Dataset):
     """Coco dataset."""
 
-    def __init__(self, root_dir, set_name='2007', transform=None):
+    def __init__(self, root_dir, set_name='2007',name, transform=None):
         self.root_dir = root_dir
         self.set_name = set_name
         self.transform = transform
-
+        self.name = name
+        
         self.annot_path = root_dir + "VOCdevkit/VOC" + set_name + "/Annotations/"
         self.pic_path = root_dir + "VOCdevkit/VOC" + set_name + "/JPEGImages/"
         self.clas_path = root_dir + "VOCdevkit/VOC" + set_name + "/ImageSets/"
+        self.id_path = root_dir + "VOCdevkit/VOC" + set_name + "/ImageSets/Layout/"
 
         # self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
         self.image_ids = self.getImgIds()
@@ -140,9 +142,13 @@ class VocDataset(Dataset):
         self.load_classes()
         print(self.classes)
     def getImgIds(self):
-        import os
-        files = os.listdir(self.pic_path)
-        ids = [i[:-4] for i in files]
+        # import os
+        # files = os.listdir(self.pic_path)
+        # ids = [i[:-4] for i in files]
+        f = open(self.id_path + self.name + ".txt")
+        data = f.readlines()
+        ids = [i.strip() for i in data]
+        f.close()
         return ids
         
     def loadCats(self):
