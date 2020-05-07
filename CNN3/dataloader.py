@@ -146,7 +146,7 @@ class VocDataset(Dataset):
         return ids
         
     def loadCats(self):
-        file = open('classes.txt', 'r') 
+        file = open(self.clas_path + 'classes.txt', 'r') 
         js = file.read()
         a = js[1:-2].split(", ")
         result = []

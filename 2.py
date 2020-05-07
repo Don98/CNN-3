@@ -1,21 +1,31 @@
-import re
-f= open("000001.xml","r")
-data = f.read()
-objects = re.compile("<object>([\w\W]+?)</object>").findall(data)
-# print(objects[0])
-# print(objects[1])
+def loadCats(self):
+    file = open('classes.txt', 'r') 
+    js = file.read()
+    a = js[1:-2].split(", ")
+    result = []
+    for i in a:
+        i = i.split(": ")
+        dic = {}
+        dic["id"] = int(i[0])
+        dic["name"] = i[1][1:-1]
+        result.append(dic)
+    file.close()
+    return result
+    
+def load_classes(self):
+    # load class names (name -> label)
+    categories = self.loadCats()
+    # categories.sort(key=lambda x: x['id'])
 
-width = re.compile("<width>([\w\W]+?)</width>").findall(data)[0].strip()
-height = re.compile("<height>([\w\W]+?)</height>").findall(data)[0].strip()
-result = []
-for i in objects:
-    name = re.compile("<name>([\w\W]+?)</name>").findall(i)[0].strip()
-    bndbox = re.compile("<bndbox>([\w\W]+?)</bndbox>").findall(i)[0].strip()
-    nums = re.compile("<[\w\W]+?>([\w\W]+?)</[\w\W]+?>").findall(bndbox)
-    nums.append(name)
-    result.append(nums)
-f.close()
-# return result
-print(result)
-print(width)
-print(height)
+    self.classes             = {}
+    self.coco_labels         = {}
+    self.coco_labels_inverse = {}
+    for c in categories:
+        self.coco_labels[len(self.classes)] = c['id']
+        self.coco_labels_inverse[c['id']] = len(self.classes)
+        self.classes[c['name']] = len(self.classes)
+
+    # also load the reverse (label -> name)
+    self.labels = {}
+    for key, value in self.classes.items():
+        self.labels[value] = key
