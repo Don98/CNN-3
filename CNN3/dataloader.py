@@ -209,8 +209,6 @@ class VocDataset(Dataset):
         height = re.compile("<height>([\w\W]+?)</height>").findall(data)[0].strip()
         for i in objects:
             name = re.compile("<name>([\w\W]+?)</name>").findall(i)[0].strip()
-            width = re.compile("<width>([\w\W]+?)</width>").findall(i)[0].strip()
-            height = re.compile("<height>([\w\W]+?)</height>").findall(i)[0].strip()
             bndbox = re.compile("<bndbox>([\w\W]+?)</bndbox>").findall(i)[0].strip()
             nums = [float(i) for i in re.compile("<[\w\W]+?>([\w\W]+?)</[\w\W]+?>").findall(bndbox)]
             nums.append(name)
