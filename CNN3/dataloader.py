@@ -140,12 +140,14 @@ class VocDataset(Dataset):
         exit()
         self.load_classes()
     def loadCats(self):
-        import json
-
-        file = open(self.clas_path + 'classes.txt', 'r') 
+        file = open('classes.txt', 'r') 
         js = file.read()
-        dic = json.loads(js)
-        file.close() 
+        a = js[1:-2].split(", ")
+        dic = {}
+        for i in a:
+            i = i.split(": ")
+            dic[int(i[0])] = i[1][1:-1]
+        file.close()
         return dic
         
     def load_classes(self):
