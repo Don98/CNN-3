@@ -220,10 +220,6 @@ class VocDataset(Dataset):
         # get ground truth annotations
         annotations     = np.zeros((0, 5))
 
-        # some images appear to miss annotations (like image with id 257034)
-        if len(annotations_ids) == 0:
-            return annotations
-
         # parse annotations
         coco_annotations = self.getLoadAnnIds(imgIds=self.image_ids[image_index])[0]
         for idx, a in enumerate(coco_annotations):
