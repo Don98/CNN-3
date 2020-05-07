@@ -8,7 +8,7 @@ import torch.optim as optim
 from torchvision import transforms
 
 from CNN3 import model
-from CNN3.dataloader import CocoDataset, CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
+from CNN3.dataloader import CocoDataset, CSVDataset, VocDataset,collater, Resizer, AspectRatioBasedSampler, Augmenter, \
     Normalizer
 from torch.utils.data import DataLoader
 
@@ -38,30 +38,17 @@ def main(args=None):
 
     # Create the data loaders
     
-    if parser.dataset == 'coco':
+    if parser.dataset == 'Voc':
 
         if parser.coco_path is None:
             raise ValueError('Must provide --coco_path when training on COCO,')
 
-        dataset_train = CocoDataset(parser.coco_path, set_name='train2017',
+        dataset_train = VocDataset(parser.coco_path, set_name='train2017',
                                     transform=transforms.Compose([Normalizer(), Augmenter(), Resizer([460,640])]))
-        dataset_val = CocoDataset(parser.coco_path, set_name='val2017',
+        dataset_val = VocDataset(parser.coco_path, set_name='val2017',
                                   transform=transforms.Compose([Normalizer(), Resizer([460,640])]))
                                   # transform=transforms.Compose([Normalizer(), Resizer([350,500])]),part = 1)
-    print(len(dataset_train))
-    num = 0
-    for i in dataset_train:
-        print(i["img"].size())
-        if num == 100:
-            break
-        num += 1
-        pass
-    for i in dataset_val:
-        print(i["img"].size())
-        if num == 200:
-            break
-        num += 1
-        pass
+    
 
 if __name__ == "__main__":
     main()

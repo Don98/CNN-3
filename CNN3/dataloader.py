@@ -132,16 +132,25 @@ class VocDataset(Dataset):
 
         self.annot_path = root_dir + "VOCdevkit/VOC" + set_name + "/Annotations/"
         self.pic_path = root_dir + "VOCdevkit/VOC" + set_name + "/JPEGImages/"
-        
+        self.clas_path = root_dir + "VOCdevkit/VOC" + set_name + "/ImageSets/"
 
         # self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
         # self.image_ids = self.coco.getImgIds()
-
+        print(self.loadCats())
+        exit()
         self.load_classes()
+    def loadCats(self):
+        import json
 
+        file = open(self.clas_path + 'classes.txt', 'r') 
+        js = file.read()
+        dic = json.loads(js)
+        file.close() 
+        return dic
+        
     def load_classes(self):
         # load class names (name -> label)
-        categories = self.coco.loadCats(self.coco.getCatIds())
+        categories = self.loadCats(self.coco.getCatIds())
         categories.sort(key=lambda x: x['id'])
 
         self.classes             = {}
