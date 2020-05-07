@@ -23,7 +23,7 @@ from PIL import Image
 class CocoDataset(Dataset):
     """Coco dataset."""
 
-    def __init__(self, root_dir, set_name='train2017', transform=None,part = 1):
+    def __init__(self, root_dir, set_name='train2017', transform=None):
         """
         Args:
             root_dir (string): COCO directory.
@@ -33,12 +33,9 @@ class CocoDataset(Dataset):
         self.root_dir = root_dir
         self.set_name = set_name
         self.transform = transform
-        self.center = [459.05176293,638.68031284]
 
         self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
-        
-
-        self.image_ids = self.coco.getImgIds()[:len(self.coco.getImgIds()) // part]
+        self.image_ids = self.coco.getImgIds()
 
         self.load_classes()
 
@@ -343,38 +340,41 @@ def collater(data):
 
 class Resizer(object):
     """Convert ndarrays in sample to Tensors."""
-    def __init__(self,center= [460,640]):
+    def __init__(self,center):
         self.center = center
 
     def __call__(self, sample):
-        center = self.center
+        # min_side=608, max_side=1024
+        min_side = self.center[0];max_side = self.center[1]
         image, annots = sample['img'], sample['annot']
 
         rows, cols, cns = image.shape
 
         smallest_side = min(rows, cols)
 
-        new_rows = 0;new_cols = 0
-        if smallest_side == rows:
-            new_rows = center[0]
-            new_cols = center[1]
-        else:
-            new_rows = center[1]
-            new_cols = center[0]
-        scale_x = new_rows / rows
-        scale_y = new_cols / cols
-        
+        # rescale the image so the smallest side is min_side
+        scale = min_side / smallest_side
+
+        # check if the largest side is now greater than max_side, which can happen
+        # when images have a large aspect ratio
+        largest_side = max(rows, cols)
+
+        if largest_side * scale > max_side:
+            scale = max_side / largest_side
+
         # resize the image with the computed scale
-        new_image = skimage.transform.resize(image, (int(new_rows), int(new_cols)))
-        rows, cols, cns = new_image.shape
+        image = skimage.transform.resize(image, (int(round(rows*scale)), int(round((cols*scale)))))
+        rows, cols, cns = image.shape
 
-        # annots[:, :4] *= scale
-        annots[:,0] *= scale_x
-        annots[:,2] *= scale_y
-        annots[:,1] *= scale_x
-        annots[:,3] *= scale_y
+        pad_w = 32 - rows%32
+        pad_h = 32 - cols%32
 
-        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': (scale_x + scale_y) / 2}
+        new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
+        new_image[:rows, :cols, :] = image.astype(np.float32)
+
+        annots[:, :4] *= scale
+
+        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 
 
 class Augmenter(object):
@@ -404,9 +404,7 @@ class Augmenter(object):
 class Normalizer(object):
 
     def __init__(self):
-        # self.mean = np.array([[[0.485, 0.456, 0.406]]])
-        # self.std = np.array([[[0.229, 0.224, 0.225]]])
-        self.mean = np.array([[[0, 0, 0]]])
+        self.mean = np.array([[[0,0,0]]])
         self.std = np.array([[[1,1,1]]])
 
     def __call__(self, sample):
