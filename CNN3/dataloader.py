@@ -125,7 +125,7 @@ class CocoDataset(Dataset):
 class VocDataset(Dataset):
     """Coco dataset."""
 
-    def __init__(self, root_dir, set_name='2007',name, transform=None):
+    def __init__(self, root_dir, set_name='2007',name="train", transform=None):
         self.root_dir = root_dir
         self.set_name = set_name
         self.transform = transform
