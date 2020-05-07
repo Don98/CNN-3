@@ -158,7 +158,7 @@ class VocDataset(Dataset):
     def load_classes(self):
         # load class names (name -> label)
         categories = self.loadCats()
-        categories.sort(key=lambda x: x['id'])
+        # categories.sort(key=lambda x: x['id'])
 
         self.classes             = {}
         self.coco_labels         = {}

@@ -9,7 +9,7 @@ coco = COCO("./instances_val2017.json")
 # print(coco.getCatIds())
 categories = coco.loadCats(coco.getCatIds())
 image_ids = coco.getImgIds()
-# print(categories)
+print(categories)
 
 categories.sort(key=lambda x: x['id'])
 # print(categories[0])
