@@ -191,7 +191,7 @@ class VocDataset(Dataset):
 
     def load_image(self, image_index):
         # image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
-        path       = self.pic_path + self.image_ids + ".jpg"
+        path       = self.pic_path + self.image_ids[image_index] + ".jpg"
         img = skimage.io.imread(path)
 
         if len(img.shape) == 2:
