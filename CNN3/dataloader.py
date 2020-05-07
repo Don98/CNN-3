@@ -136,13 +136,12 @@ class VocDataset(Dataset):
 
         # self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
         self.image_ids = self.getImgIds()
-        print(self.image_ids)
-        exit()
+
         self.load_classes()
     def getImgIds(self):
         import os
         files = os.listdir(self.pic_path)
-        ids = [i[:-5] for i in files]
+        ids = [i[:-4] for i in files]
         return ids
         
     def loadCats(self):
@@ -188,8 +187,8 @@ class VocDataset(Dataset):
         return sample
 
     def load_image(self, image_index):
-        image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
-        path       = os.path.join(self.root_dir, 'images', self.set_name, image_info['file_name'])
+        # image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
+        path       = self.pic_path + self.image_ids + ".jpg"
         img = skimage.io.imread(path)
 
         if len(img.shape) == 2:
@@ -197,9 +196,24 @@ class VocDataset(Dataset):
 
         return img.astype(np.float32)/255.0
 
+    def getLoadAnnIds(self,imgIds):
+        import re
+        f= open(self.annot_path + imgIds + ".xml","r")
+        data = f.read()
+        objects = re.compile("<object>([\w\W]+?)</object>").findall(data)
+        result = []
+        for i in objects:
+            name = re.compile("<name>([\w\W]+?)</name>").findall(i)[0].strip()
+            bndbox = re.compile("<bndbox>([\w\W]+?)</bndbox>").findall(i)[0].strip()
+            print(name)
+            nums = [float(i) for i in re.compile("<[\w\W]+?>([\w\W]+?)</[\w\W]+?>").findall(bndbox)]
+            nums.append(name)
+            result.append(nums)
+        f.close()
+        return result
+
     def load_annotations(self, image_index):
         # get ground truth annotations
-        annotations_ids = self.coco.getAnnIds(imgIds=self.image_ids[image_index], iscrowd=False)
         annotations     = np.zeros((0, 5))
 
         # some images appear to miss annotations (like image with id 257034)
@@ -207,21 +221,17 @@ class VocDataset(Dataset):
             return annotations
 
         # parse annotations
-        coco_annotations = self.coco.loadAnns(annotations_ids)
+        coco_annotations = self.getLoadAnnIds(imgIds=self.image_ids[image_index])
         for idx, a in enumerate(coco_annotations):
 
             # some annotations have basically no width / height, skip them
-            if a['bbox'][2] < 1 or a['bbox'][3] < 1:
+            if np.abs(a[2] - a[0]) < 1 or np.abs(a[3] -a[1]) < 1:
                 continue
 
             annotation        = np.zeros((1, 5))
-            annotation[0, :4] = a['bbox']
-            annotation[0, 4]  = self.coco_label_to_label(a['category_id'])
+            annotation[0, :4] = a[:4]
+            annotation[0, 4]  = self.classes(a[4])
             annotations       = np.append(annotations, annotation, axis=0)
-
-        # transform from [x, y, w, h] to [x1, y1, x2, y2]
-        annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
-        annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
 
         return annotations
 
@@ -237,7 +247,7 @@ class VocDataset(Dataset):
         return float(image['width']) / float(image['height'])
 
     def num_classes(self):
-        return 80
+        return 20
 
 
 class CSVDataset(Dataset):
