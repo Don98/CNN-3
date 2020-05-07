@@ -230,7 +230,7 @@ class VocDataset(Dataset):
 
             annotation        = np.zeros((1, 5))
             annotation[0, :4] = a[:4]
-            annotation[0, 4]  = self.classes(a[4])
+            annotation[0, 4]  = self.classes[a[4]]
             annotations       = np.append(annotations, annotation, axis=0)
 
         return annotations
