@@ -9,13 +9,16 @@ coco = COCO("./instances_val2017.json")
 # print(coco.getCatIds())
 categories = coco.loadCats(coco.getCatIds())
 image_ids = coco.getImgIds()
+# print(categories)
 
-# print(image_ids)
 categories.sort(key=lambda x: x['id'])
+# print(categories[0])
+
 classes             = {}
 coco_labels         = {}
 coco_labels_inverse = {}
 for c in categories:
+    # print(c)
     coco_labels[len(classes)] = c['id']
     coco_labels_inverse[c['id']] = len(classes)
     classes[c['name']] = len(classes)
@@ -26,7 +29,7 @@ for c in categories:
 labels = {}
 for key, value in classes.items():
     labels[value] = key
-# print(labels)
+print(labels)
 
 annotations_ids = coco.getAnnIds(imgIds=image_ids[0], iscrowd=False)
 
@@ -92,5 +95,5 @@ def resizer(min_side=608, max_side=1024):
 
 # img = load_image(0)
 annot = annotations
-print(annot[:,:4])
+# print(annot[:,:4])
 # resizer()
