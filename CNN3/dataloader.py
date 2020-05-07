@@ -205,19 +205,20 @@ class VocDataset(Dataset):
         data = f.read()
         objects = re.compile("<object>([\w\W]+?)</object>").findall(data)
         result = []
+        width = re.compile("<width>([\w\W]+?)</width>").findall(data)[0].strip()
+        height = re.compile("<height>([\w\W]+?)</height>").findall(data)[0].strip()
         for i in objects:
             name = re.compile("<name>([\w\W]+?)</name>").findall(i)[0].strip()
             width = re.compile("<width>([\w\W]+?)</width>").findall(i)[0].strip()
             height = re.compile("<height>([\w\W]+?)</height>").findall(i)[0].strip()
             bndbox = re.compile("<bndbox>([\w\W]+?)</bndbox>").findall(i)[0].strip()
-            print(name)
             nums = [float(i) for i in re.compile("<[\w\W]+?>([\w\W]+?)</[\w\W]+?>").findall(bndbox)]
             nums.append(name)
             nums.append(width)
             nums.append(height)
             result.append(nums)
         f.close()
-        return result
+        return result,width,height
 
     def load_annotations(self, image_index):
         # get ground truth annotations
@@ -228,7 +229,7 @@ class VocDataset(Dataset):
             return annotations
 
         # parse annotations
-        coco_annotations = self.getLoadAnnIds(imgIds=self.image_ids[image_index])
+        coco_annotations = self.getLoadAnnIds(imgIds=self.image_ids[image_index])[0]
         for idx, a in enumerate(coco_annotations):
 
             # some annotations have basically no width / height, skip them
@@ -250,8 +251,8 @@ class VocDataset(Dataset):
         return self.coco_labels[label]
 
     def image_aspect_ratio(self, image_index):
-        image = self.getLoadAnnIds(self.image_ids[image_index])[0]
-        return float(image[5]) / float(image[6])
+        image = self.getLoadAnnIds(self.image_ids[image_index])[1:2]
+        return float(image[0]) / float(image[1])
 
     def num_classes(self):
         return 20
