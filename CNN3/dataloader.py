@@ -247,7 +247,7 @@ class VocDataset(Dataset):
         return float(image[1]) / float(image[2])
 
     def num_classes(self):
-        return 20
+        return 80
 
 
 class CSVDataset(Dataset):
