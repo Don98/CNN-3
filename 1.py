@@ -9,7 +9,7 @@ coco = COCO("./instances_val2017.json")
 # print(coco.getCatIds())
 categories = coco.loadCats(coco.getCatIds())
 image_ids = coco.getImgIds()
-print(categories)
+# print(categories)
 
 categories.sort(key=lambda x: x['id'])
 # print(categories[0])
@@ -18,13 +18,13 @@ classes             = {}
 coco_labels         = {}
 coco_labels_inverse = {}
 for c in categories:
-    print(c)
+    # print(c)
     coco_labels[len(classes)] = c['id']
     coco_labels_inverse[c['id']] = len(classes)
     classes[c['name']] = len(classes)
-print(coco_labels)
-print(coco_labels_inverse)
-print(classes)
+# print(coco_labels)
+# print(coco_labels_inverse)
+# print(classes)
 
 labels = {}
 for key, value in classes.items():
@@ -41,7 +41,7 @@ coco_annotations = coco.loadAnns(annotations_ids)
 # print(coco_annotations[0])
 
 for idx, a in enumerate(coco_annotations):
-    print(idx,a)
+    # print(idx,a)
     # some annotations have basically no width / height, skip them
     if a['bbox'][2] < 1 or a['bbox'][3] < 1:
         continue
@@ -49,10 +49,10 @@ for idx, a in enumerate(coco_annotations):
     annotation        = np.zeros((1, 5))
     annotation[0, :4] = a['bbox']
     annotation[0, 4]  = coco_label_to_label(a['category_id'])
-    print(a['category_id'])
-    print(annotation[0, 4])
+    # print(a['category_id'])
+    # print(annotation[0, 4])
     annotations       = np.append(annotations, annotation, axis=0)
-    exit()
+    # exit()
 
 # transform from [x, y, w, h] to [x1, y1, x2, y2]
 annotations[:, 2] = annotations[:, 0] + annotations[:, 2]
@@ -60,7 +60,7 @@ annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
 # print(annotations)
 
 image_info = coco.loadImgs(image_ids[0])[0]
-# print(image_info)
+print(image_info)
 
 def resizer(min_side=608, max_side=1024):
     center = [460,640]

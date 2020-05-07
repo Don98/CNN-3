@@ -207,10 +207,14 @@ class VocDataset(Dataset):
         result = []
         for i in objects:
             name = re.compile("<name>([\w\W]+?)</name>").findall(i)[0].strip()
+            width = re.compile("<width>([\w\W]+?)</width>").findall(i)[0].strip()
+            height = re.compile("<height>([\w\W]+?)</height>").findall(i)[0].strip()
             bndbox = re.compile("<bndbox>([\w\W]+?)</bndbox>").findall(i)[0].strip()
             print(name)
             nums = [float(i) for i in re.compile("<[\w\W]+?>([\w\W]+?)</[\w\W]+?>").findall(bndbox)]
             nums.append(name)
+            nums.append(width)
+            nums.append(height)
             result.append(nums)
         f.close()
         return result
@@ -246,8 +250,8 @@ class VocDataset(Dataset):
         return self.coco_labels[label]
 
     def image_aspect_ratio(self, image_index):
-        image = self.coco.loadImgs(self.image_ids[image_index])[0]
-        return float(image['width']) / float(image['height'])
+        image = self.getLoadAnnIds(self.image_ids[image_index])[0]
+        return float(image[5]) / float(image[6])
 
     def num_classes(self):
         return 20
