@@ -1,10 +1,9 @@
-import os
-
-files = os.listdir("")
-classes = len(files)/4
-f = open("","w")
-clas = {}
-num = 0
-for i in file[::4]:
-    clas[num] = i.split("_")[0]
-f.write(str(clas))
+file = open('classes.txt', 'r') 
+js = file.read()
+a = js[1:-2].split(", ")
+dic = {}
+for i in a:
+    i = i.split(": ")
+    dic[int(i[0])] = i[1][1:-1]
+file.close()
+print(dic)

@@ -135,10 +135,16 @@ class VocDataset(Dataset):
         self.clas_path = root_dir + "VOCdevkit/VOC" + set_name + "/ImageSets/"
 
         # self.coco      = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
-        # self.image_ids = self.coco.getImgIds()
-        print(self.loadCats())
+        self.image_ids = self.getImgIds()
+        print(self.image_ids)
         exit()
         self.load_classes()
+    def getImgIds(self):
+        import os
+        files = os.listdir(self.pic_path)
+        ids = [i[:-5] for i in files]
+        return ids
+        
     def loadCats(self):
         file = open('classes.txt', 'r') 
         js = file.read()
