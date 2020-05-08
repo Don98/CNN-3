@@ -255,6 +255,8 @@ class VocDataset(Dataset):
 
     def num_classes(self):
         return 20
+    def label_to_name(self, label):
+        return self.labels[label]
 
 
 class CSVDataset(Dataset):
