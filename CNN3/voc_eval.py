@@ -62,13 +62,13 @@ def _compute_ap(recall, precision):
     return ap
 
 
-def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100, save_path=None):
-    """ Get the detections from the retinanet using the generator.
+def _get_detections(dataset, cnn3, score_threshold=0.05, max_detections=100, save_path=None):
+    """ Get the detections from the cnn3 using the generator.
     The result is a list of lists such that the size is:
         all_detections[num_images][num_classes] = detections[num_detections, 4 + num_classes]
     # Arguments
-        dataset         : The generator used to run images through the retinanet.
-        retinanet           : The retinanet to run on the images.
+        dataset         : The generator used to run images through the cnn3.
+        cnn3           : The cnn3 to run on the images.
         score_threshold : The score confidence threshold to use.
         max_detections  : The maximum number of detections to use per image.
         save_path       : The path to save the images with visualized detections to.
@@ -77,7 +77,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
     """
     all_detections = [[None for i in range(dataset.num_classes())] for j in range(len(dataset))]
 
-    retinanet.eval()
+    cnn3.eval()
     
     with torch.no_grad():
 
@@ -87,9 +87,9 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
 
             # run network
             if torch.cuda.is_available():
-                scores, labels, boxes = retinanet(data['img'].permute(2, 0, 1).cuda().float().unsqueeze(dim=0))
+                scores, labels, boxes = cnn3(data['img'].permute(2, 0, 1).cuda().float().unsqueeze(dim=0))
             else:
-                scores, labels, boxes = retinanet(data['img'].permute(2, 0, 1).float().unsqueeze(dim=0))
+                scores, labels, boxes = cnn3(data['img'].permute(2, 0, 1).float().unsqueeze(dim=0))
             scores = scores.cpu().numpy()
             labels = labels.cpu().numpy()
             boxes  = boxes.cpu().numpy()
@@ -151,16 +151,16 @@ def _get_annotations(generator):
 
 def evaluate(
     generator,
-    retinanet,
+    cnn3,
     iou_threshold=0.5,
     score_threshold=0.05,
     max_detections=100,
     save_path=None
 ):
-    """ Evaluate a given dataset using a given retinanet.
+    """ Evaluate a given dataset using a given cnn3.
     # Arguments
         generator       : The generator that represents the dataset to evaluate.
-        retinanet           : The retinanet to evaluate.
+        cnn3           : The cnn3 to evaluate.
         iou_threshold   : The threshold used to consider when a detection is positive or negative.
         score_threshold : The score confidence threshold to use for detections.
         max_detections  : The maximum number of detections to use per image.
@@ -170,20 +170,30 @@ def evaluate(
     """
 
 
-
     # gather all detections and annotations
 
-    all_detections     = _get_detections(generator, retinanet, score_threshold=score_threshold, max_detections=max_detections, save_path=save_path)
+    all_detections     = _get_detections(generator, cnn3, score_threshold=score_threshold, max_detections=max_detections, save_path=save_path)
     all_annotations    = _get_annotations(generator)
 
     average_precisions = {}
-    print("The num is :",generator.num_classes())
+
     for label in range(generator.num_classes()):
         false_positives = np.zeros((0,))
         true_positives  = np.zeros((0,))
+        sma_false_positives = np.zeros((0,))
+        sma_true_positives  = np.zeros((0,))
+        mid_false_positives = np.zeros((0,))
+        mid_true_positives  = np.zeros((0,))
+        lar_false_positives = np.zeros((0,))
+        lar_true_positives  = np.zeros((0,))
         scores          = np.zeros((0,))
+        sma_scores      = np.zeros((0,))
+        mid_scores      = np.zeros((0,))
+        lar_scores      = np.zeros((0,))
         num_annotations = 0.0
-
+        sma_num = 0.0
+        mid_num = 0.0
+        lar_num = 0.0
         for i in range(len(generator)):
             detections           = all_detections[i][label]
             annotations          = all_annotations[i][label]
@@ -196,6 +206,12 @@ def evaluate(
                 if annotations.shape[0] == 0:
                     false_positives = np.append(false_positives, 1)
                     true_positives  = np.append(true_positives, 0)
+                    # sma_false_positives = np.append(sma_false_positives, 1)
+                    # sma_true_positives  = np.append(sma_true_positives, 0)
+                    # mid_false_positives = np.append(mid_false_positives, 1)
+                    # mid_true_positives  = np.append(mid_true_positives, 0)
+                    # lar_false_positives = np.append(lar_false_positives, 1)
+                    # lar_true_positives  = np.append(lar_true_positives, 0)
                     continue
 
                 overlaps            = compute_overlap(np.expand_dims(d, axis=0), annotations)
@@ -205,37 +221,92 @@ def evaluate(
                 if max_overlap >= iou_threshold and assigned_annotation not in detected_annotations:
                     false_positives = np.append(false_positives, 0)
                     true_positives  = np.append(true_positives, 1)
+                    target_annotations = annotations[assigned_annotation][0]
+                    if(np.abs(target_annotations[2] - target_annotations[0]) * np.abs(target_annotations[3] - target_annotations[1]) <= 1024):
+                        sma_false_positives = np.append(sma_false_positives, 0)
+                        sma_true_positives  = np.append(sma_true_positives, 1)
+                        sma_scores = np.append(sma_scores, d[4])
+                        sma_num += 1
+                    elif (np.abs(target_annotations[2] - target_annotations[0]) * np.abs(target_annotations[3] - target_annotations[1]) <= 9216):
+                        mid_false_positives = np.append(mid_false_positives, 0)
+                        mid_true_positives  = np.append(mid_true_positives, 1)
+                        mid_scores = np.append(mid_scores, d[4])
+                        mid_num += 1
+                    else:
+                        lar_false_positives = np.append(lar_false_positives, 0)
+                        lar_true_positives  = np.append(lar_true_positives, 1)
+                        lar_scores = np.append(lar_scores, d[4])
+                        lar_num += 1
                     detected_annotations.append(assigned_annotation)
                 else:
                     false_positives = np.append(false_positives, 1)
                     true_positives  = np.append(true_positives, 0)
+                    if(np.abs(target_annotations[2] - target_annotations[0]) * np.abs(target_annotations[3] - target_annotations[1]) <= 1024):
+                        sma_false_positives = np.append(sma_false_positives, 1)
+                        sma_true_positives  = np.append(sma_true_positives, 0)
+                        sma_scores = np.append(sma_scores, d[4])
+                        sma_num += 1
+                    elif(np.abs(target_annotations[2] - target_annotations[0]) * np.abs(target_annotations[3] - target_annotations[1]) <= 9216):
+                        mid_false_positives = np.append(mid_false_positives, 1)
+                        mid_true_positives  = np.append(mid_true_positives, 0)
+                        mid_scores = np.append(mid_scores, d[4])
+                        mid_num += 1
+                    else:
+                        lar_false_positives = np.append(lar_false_positives, 1)
+                        lar_true_positives  = np.append(lar_true_positives, 0)
+                        lar_scores = np.append(lar_scores, d[4])
+                        lar_num += 1
 
         # no annotations -> AP for this class is 0 (is this correct?)
         if num_annotations == 0:
-            average_precisions[label] = 0, 0
+            average_precisions[label] = 0, 0, 0, 0, 0, 0, 0, 0
             continue
 
         # sort by score
         indices         = np.argsort(-scores)
         false_positives = false_positives[indices]
         true_positives  = true_positives[indices]
+        sma_indices         = np.argsort(-sma_scores)
+        mid_indices         = np.argsort(-mid_scores)
+        lar_indices         = np.argsort(-lar_scores)
+        sma_false_positives = sma_false_positives[sma_indices]
+        sma_true_positives  = sma_true_positives[sma_indices]
+        mid_false_positives = mid_false_positives[mid_indices]
+        mid_true_positives  = mid_true_positives[mid_indices]
+        lar_false_positives = lar_false_positives[lar_indices]
+        lar_true_positives  = lar_true_positives[lar_indices]
 
         # compute false positives and true positives
         false_positives = np.cumsum(false_positives)
         true_positives  = np.cumsum(true_positives)
+        sma_false_positives = np.cumsum(sma_false_positives)
+        sma_true_positives  = np.cumsum(sma_true_positives)
+        mid_false_positives = np.cumsum(mid_false_positives)
+        mid_true_positives  = np.cumsum(mid_true_positives)
+        lar_false_positives = np.cumsum(lar_false_positives)
+        lar_true_positives  = np.cumsum(lar_true_positives)
 
         # compute recall and precision
-        recall    = true_positives / num_annotations
-        precision = true_positives / np.maximum(true_positives + false_positives, np.finfo(np.float64).eps)
+        recall        = true_positives     / num_annotations
+        precision     = true_positives     / np.maximum(true_positives + false_positives, np.finfo(np.float64).eps)
+        sma_recall    = sma_true_positives / sma_num
+        sma_precision = sma_true_positives / np.maximum(sma_true_positives + sma_false_positives, np.finfo(np.float64).eps)
+        mid_recall    = mid_true_positives / mid_num
+        mid_precision = mid_true_positives / np.maximum(mid_true_positives + mid_false_positives, np.finfo(np.float64).eps)
+        lar_recall    = lar_true_positives / lar_num
+        lar_precision = lar_true_positives / np.maximum(lar_true_positives + lar_false_positives, np.finfo(np.float64).eps)
 
         # compute average precision
         average_precision  = _compute_ap(recall, precision)
-        average_precisions[label] = average_precision, num_annotations
+        sma_average_precision  = _compute_ap(sma_recall, sma_precision)
+        mid_average_precision  = _compute_ap(mid_recall, mid_precision)
+        lar_average_precision  = _compute_ap(lar_recall, lar_precision)
+        average_precisions[label] = average_precision, num_annotations, sma_average_precision, sma_num,mid_average_precision, mid_num,lar_average_precision,lar_num
     
     print('\nmAP:')
     for label in range(generator.num_classes()):
         label_name = generator.label_to_name(label)
-        print('{}: {}'.format(label_name, average_precisions[label][0]))
+        print('{} | \tAP:{} \t| \tAPs:{} \t| \tAPm:{} \t| \tAPl:{} \t|'.format(label_name, average_precisions[label][0], average_precisions[label][2], average_precisions[label][4], average_precisions[label][6]))
     
     return average_precisions
 
