@@ -31,12 +31,9 @@ def main(args=None):
         if torch.cuda.is_available():
             cnn3 = cnn3.cuda()
 
-    if torch.cuda.is_available():
-        cnn3.load_state_dict(torch.load(parser.model_path))
-        cnn3 = torch.nn.DataParallel(cnn3).cuda()
-    else:
-        cnn3.load_state_dict(torch.load(parser.model_path))
-        cnn3 = torch.nn.DataParallel(cnn3)
+    cnn3 = torch.nn.DataParallel(cnn3).cuda()
+    model_dict = torch.load(parser.model_path).module.state_dict()
+    cnn3.module.load_state_dict(model_dict)
 
     cnn3.training = False
     cnn3.eval()
