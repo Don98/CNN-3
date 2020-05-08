@@ -308,7 +308,7 @@ def evaluate(
     for label in range(generator.num_classes()):
         label_name = generator.label_to_name(label)
         # print('{} | \tAP:{} \t| \tAPs:{} \t| \tAPm:{} \t| \tAPl:{} \t|'.format(label_name, average_precisions[label][0], average_precisions[label][2], average_precisions[label][4], average_precisions[label][6]))
-        table.add_row([label_name, average_precisions[label][0], average_precisions[label][2], average_precisions[label][4], average_precisions[label][6]])
+        table.add_row([label_name, round(average_precisions[label][0],3), round(average_precisions[label][2],3), round(average_precisions[label][4],3), round(average_precisions[label][6],3)])
     print(table)
     return average_precisions
 
