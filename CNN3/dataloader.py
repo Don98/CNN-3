@@ -140,7 +140,7 @@ class VocDataset(Dataset):
         self.image_ids = self.getImgIds()
 
         self.load_classes()
-        print(self.classes)
+        
     def getImgIds(self):
         # import os
         # files = os.listdir(self.pic_path)
