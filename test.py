@@ -22,6 +22,9 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 
 def main(args=None):
+    model_name = "high_model_final"
+    # model_name = "low_model_final"
+    # model_name = "high<32_model_final"
     parser = argparse.ArgumentParser(description='Simple training script for training a cnn3 network.')
 
     parser.add_argument('--dataset', help='Dataset type, must be one of csv or coco.')
@@ -32,7 +35,7 @@ def main(args=None):
 
     parser.add_argument('--depth', help='Resnet depth, must be one of 18, 34, 50, 101, 152', type=int, default=101)
     parser.add_argument('--epochs', help='Number of epochs', type=int, default=100)
-
+    
     parser = parser.parse_args(args)
 
     # Create the data loaders
@@ -184,10 +187,7 @@ def main(args=None):
 
             print('Evaluating dataset')
 
-            mAP = csv_eval.evaluate(dataset_val, cnn3)
-            # print('Evaluating dataset')
-
-            # voc_eval.evaluate_coco(dataset_val, cnn3)
+            mAP = voc_eval.evaluate(dataset_val, cnn3)
 
         scheduler.step(np.mean(epoch_loss))
 
@@ -195,7 +195,7 @@ def main(args=None):
 
     cnn3.eval()
 
-    torch.save(cnn3, 'high_model_final.pt')
+    torch.save(cnn3, model_name + '.pt')
     
 
 if __name__ == '__main__':
