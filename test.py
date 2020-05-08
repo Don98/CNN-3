@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 
 from CNN3 import coco_eval
 from CNN3 import csv_eval
+from CNN3 import voc_eval
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -129,7 +130,7 @@ def main(args=None):
 
         epoch_loss = []
 
-        for iter_num, data in enumerate(dataloader_train[:2]):
+        for iter_num, data in enumerate(dataloader_train):
             try:
                 optimizer.zero_grad()
 
@@ -166,7 +167,7 @@ def main(args=None):
                 print(e)
                 continue
 
-        if parser.dataset == 'coco' or parser.dataset == 'Voc':
+        if parser.dataset == 'coco':
 
             print('Evaluating dataset')
 
@@ -177,6 +178,16 @@ def main(args=None):
             print('Evaluating dataset')
 
             mAP = csv_eval.evaluate(dataset_val, cnn3)
+
+        elif parser.dataset == 'Voc':
+
+
+            print('Evaluating dataset')
+
+            mAP = csv_eval.evaluate(dataset_val, cnn3)
+            # print('Evaluating dataset')
+
+            # voc_eval.evaluate_coco(dataset_val, cnn3)
 
         scheduler.step(np.mean(epoch_loss))
 
