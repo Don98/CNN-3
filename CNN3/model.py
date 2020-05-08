@@ -244,27 +244,26 @@ class ResNet(nn.Module):
         x2 = self.layer2(x1)
         x3 = self.layer3(x2)
         x4 = self.layer4(x3)
-
         features = self.fpn([x2, x3, x4])
 
         regression = torch.cat([self.regressionModel(feature) for feature in features], dim=1)
-
         classification = torch.cat([self.classificationModel(feature) for feature in features], dim=1)
 
         anchors = self.anchors(img_batch)
-
         if self.training:
             return self.focalLoss(classification, regression, anchors, annotations)
         else:
+            # print("In it .")
             transformed_anchors = self.regressBoxes(anchors, regression)
             transformed_anchors = self.clipBoxes(transformed_anchors, img_batch)
 
             scores = torch.max(classification, dim=2, keepdim=True)[0]
 
-            scores_over_thresh = (scores > 0.05)[0, :, 0]
-
+            scores_over_thresh = (scores > 0.01)[0, :, 0]
+            # print("if zero : ",scores)
             if scores_over_thresh.sum() == 0:
                 # no boxes to NMS, just return
+                print("is zeros")
                 return [torch.zeros(0), torch.zeros(0), torch.zeros(0, 4)]
 
             classification = classification[:, scores_over_thresh, :]
@@ -274,7 +273,7 @@ class ResNet(nn.Module):
             anchors_nms_idx = nms(transformed_anchors[0,:,:], scores[0,:,0], 0.5)
 
             nms_scores, nms_class = classification[0, anchors_nms_idx, :].max(dim=1)
-
+            # print(nms_scores,nms_class)
             return [nms_scores, nms_class, transformed_anchors[0, anchors_nms_idx, :]]
 
 
