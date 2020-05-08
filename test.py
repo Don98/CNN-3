@@ -48,7 +48,8 @@ def main(args=None):
         dataset_val = VocDataset(parser.coco_path, set_name='2007',
                                   transform=transforms.Compose([Normalizer(), Resizer([460,640])]))
                                   # transform=transforms.Compose([Normalizer(), Resizer([350,500])]),part = 1)
-    for i in dataset_val:
-        print(i["scale"])
+    # for i in dataset_val:
+        # print(i["scale"])
+    coco_eval.evaluate_coco(dataset_val, cnn3)
 if __name__ == "__main__":
     main()
