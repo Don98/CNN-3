@@ -5,7 +5,7 @@ import json
 import os
 
 import torch
-
+from prettytable import PrettyTable
 
 
 def compute_overlap(a, b):
@@ -304,9 +304,11 @@ def evaluate(
         average_precisions[label] = average_precision, num_annotations, sma_average_precision, sma_num,mid_average_precision, mid_num,lar_average_precision,lar_num
     
     print('\nmAP:')
+    table = PrettyTable(['categories','mAP','mAPs','mAPm','mAPl'])
     for label in range(generator.num_classes()):
         label_name = generator.label_to_name(label)
-        print('{} | \tAP:{} \t| \tAPs:{} \t| \tAPm:{} \t| \tAPl:{} \t|'.format(label_name, average_precisions[label][0], average_precisions[label][2], average_precisions[label][4], average_precisions[label][6]))
-    
+        # print('{} | \tAP:{} \t| \tAPs:{} \t| \tAPm:{} \t| \tAPl:{} \t|'.format(label_name, average_precisions[label][0], average_precisions[label][2], average_precisions[label][4], average_precisions[label][6]))
+        table.add_row([label_name, average_precisions[label][0], average_precisions[label][2], average_precisions[label][4], average_precisions[label][6]])
+    print(table)
     return average_precisions
 
