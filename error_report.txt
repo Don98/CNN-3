@@ -1,0 +1,37 @@
+Created temporary directory: /tmp/pip-ephem-wheel-cache-g16_b7bh
+Created temporary directory: /tmp/pip-req-tracker-rztv8c5d
+Created requirements tracker '/tmp/pip-req-tracker-rztv8c5d'
+Created temporary directory: /tmp/pip-install-15rlxlvl
+Looking in indexes: http://pypi.douban.com/simple
+Obtaining file:///home/flybird/%E6%A1%8C%E9%9D%A2/mmdetection
+  Added file:///home/flybird/%E6%A1%8C%E9%9D%A2/mmdetection to build tracker '/tmp/pip-req-tracker-rztv8c5d'
+    Running setup.py (path:/home/flybird/桌面/mmdetection/setup.py) egg_info for package from file:///home/flybird/%E6%A1%8C%E9%9D%A2/mmdetection
+  Source in /home/flybird/桌面/mmdetection has version 1.1.0+cd4e716, which satisfies requirement mmdet==1.1.0+cd4e716 from file:///home/flybird/%E6%A1%8C%E9%9D%A2/mmdetection
+  Removed mmdet==1.1.0+cd4e716 from file:///home/flybird/%E6%A1%8C%E9%9D%A2/mmdetection from build tracker '/tmp/pip-req-tracker-rztv8c5d'
+Requirement already satisfied: matplotlib in /home/flybird/anaconda3/lib/python3.7/site-packages (from mmdet==1.1.0+cd4e716) (3.1.1)
+Requirement already satisfied: cycler>=0.10 in /home/flybird/anaconda3/lib/python3.7/site-packages (from matplotlib->mmdet==1.1.0+cd4e716) (0.10.0)
+Requirement already satisfied: kiwisolver>=1.0.1 in /home/flybird/anaconda3/lib/python3.7/site-packages (from matplotlib->mmdet==1.1.0+cd4e716) (1.1.0)
+Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.1 in /home/flybird/anaconda3/lib/python3.7/site-packages (from matplotlib->mmdet==1.1.0+cd4e716) (2.4.2)
+Requirement already satisfied: python-dateutil>=2.1 in /home/flybird/anaconda3/lib/python3.7/site-packages (from matplotlib->mmdet==1.1.0+cd4e716) (2.8.0)
+Requirement already satisfied: numpy>=1.11 in /home/flybird/anaconda3/lib/python3.7/site-packages (from matplotlib->mmdet==1.1.0+cd4e716) (1.17.2)
+Requirement already satisfied: six in /home/flybird/anaconda3/lib/python3.7/site-packages (from cycler>=0.10->matplotlib->mmdet==1.1.0+cd4e716) (1.12.0)
+Requirement already satisfied: setuptools in /home/flybird/anaconda3/lib/python3.7/site-packages (from kiwisolver>=1.0.1->matplotlib->mmdet==1.1.0+cd4e716) (41.4.0)
+Installing collected packages: mmdet
+  Running setup.py develop for mmdet
+Cleaning up...
+Removed build tracker '/tmp/pip-req-tracker-rztv8c5d'
+Exception information:
+Traceback (most recent call last):
+  File "/home/flybird/anaconda3/lib/python3.7/site-packages/pip/_internal/cli/base_command.py", line 188, in main
+    status = self.run(options, args)
+  File "/home/flybird/anaconda3/lib/python3.7/site-packages/pip/_internal/commands/install.py", line 407, in run
+    use_user_site=options.use_user_site,
+  File "/home/flybird/anaconda3/lib/python3.7/site-packages/pip/_internal/req/__init__.py", line 58, in install_given_reqs
+    **kwargs
+  File "/home/flybird/anaconda3/lib/python3.7/site-packages/pip/_internal/req/req_install.py", line 918, in install
+    install_options, global_options, prefix=prefix,
+  File "/home/flybird/anaconda3/lib/python3.7/site-packages/pip/_internal/req/req_install.py", line 774, in install_editable
+    cwd=self.setup_py_dir,
+  File "/home/flybird/anaconda3/lib/python3.7/site-packages/pip/_internal/utils/misc.py", line 931, in call_subprocess
+    raise InstallationError(exc_msg)
+pip._internal.exceptions.InstallationError: Command errored out with exit status 1: /home/flybird/anaconda3/bin/python -c 'import sys, setuptools, tokenize; sys.argv[0] = '"'"'/home/flybird/桌面/mmdetection/setup.py'"'"'; __file__='"'"'/home/flybird/桌面/mmdetection/setup.py'"'"';f=getattr(tokenize, '"'"'open'"'"', open)(__file__);code=f.read().replace('"'"'\r\n'"'"', '"'"'\n'"'"');f.close();exec(compile(code, __file__, '"'"'exec'"'"'))' develop --no-deps Check the logs for full command output.
