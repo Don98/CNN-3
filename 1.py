@@ -22,10 +22,9 @@ for c in categories:
     coco_labels[len(classes)] = c['id']
     coco_labels_inverse[c['id']] = len(classes)
     classes[c['name']] = len(classes)
-# print(coco_labels)
-# print(coco_labels_inverse)
-# print(classes)
-
+print(coco_labels)
+print(coco_labels_inverse)
+print(classes)
 labels = {}
 for key, value in classes.items():
     labels[value] = key
@@ -38,8 +37,9 @@ annotations     = np.zeros((0, 5))
 
 # parse annotations
 coco_annotations = coco.loadAnns(annotations_ids)
-# print(coco_annotations[0])
+print(coco_annotations[0])
 
+exit()
 for idx, a in enumerate(coco_annotations):
     # print(idx,a)
     # some annotations have basically no width / height, skip them
@@ -60,7 +60,7 @@ annotations[:, 3] = annotations[:, 1] + annotations[:, 3]
 # print(annotations)
 
 image_info = coco.loadImgs(image_ids[0])[0]
-print(image_info)
+# print(image_info)
 
 def resizer(min_side=608, max_side=1024):
     center = [460,640]
@@ -100,3 +100,9 @@ def resizer(min_side=608, max_side=1024):
 annot = annotations
 # print(annot[:,:4])
 # resizer()
+coco_true = coco
+# coco_pred = coco_true.loadRes('{}_bbox_results.json'.format("2017"))
+# print(coco_true)
+for i in coco_true:
+    print(i)
+# print(coco_pred)

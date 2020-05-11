@@ -15,11 +15,12 @@ def cluster_model(x,model,num):
 
 
 if __name__ == "__main__":
-    f = open("file/COCO/scale_h_w_or.txt", "r")
+    f = open("file/COCO/coco_result.txt", "r")
+    # f = open("file/VOC2007/voc_result.txt", "r")
     data = f.readlines()
-    data = [[int(i[1:i.index(",")]), int(i[i.index(",") + 2:-2])] for i in data]
+    data = [i.strip().split(" || ")[1] for i in data]
+    data = [(int(i.split(" ")[0]),int(i.split(" ")[1])) for i in data]
     data = [i if i[0] < i[1] else [i[1],i[0]]for i in data]#对折
-    # print(data)
     f.close()
     x = np.array(data)
     
@@ -34,6 +35,6 @@ if __name__ == "__main__":
     ax.scatter(x[y == 0][:, 0], x[y == 0][:, 1], alpha=0.5)
     ax.scatter(x[y == 1][:, 0], x[y == 1][:, 1], c='green', alpha=0.5)
     plt.show()
-    with open("center_kmeans.txt","w") as f:
+    with open("coco_center_kmeans.txt","w") as f:
         f.write(str(center[0])+"\n")
         f.write(str(center[1])+"\n")

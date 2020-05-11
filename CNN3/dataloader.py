@@ -228,8 +228,8 @@ class VocDataset(Dataset):
         annotations     = np.zeros((0, 5))
 
         # parse annotations
-        coco_annotations = self.getLoadAnnIds(imgIds=self.image_ids[image_index])[0]
-        for idx, a in enumerate(coco_annotations):
+        voc_annotations = self.getLoadAnnIds(imgIds=self.image_ids[image_index])[0]
+        for idx, a in enumerate(voc_annotations):
 
             # some annotations have basically no width / height, skip them
             if np.abs(a[2] - a[0]) < 1 or np.abs(a[3] -a[1]) < 1:
